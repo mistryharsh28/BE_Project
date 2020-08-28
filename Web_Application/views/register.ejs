@@ -161,6 +161,25 @@
 
   <!-- Demo JS - remove this in your project -->
   <script src="/assets/js/demo.min.js"></script>
+  <script type="text/javascript">
+      if ('<%= message %>' != ""){
+        function flashMessages() {
+          $.notify({
+            icon: "ti-bell",
+            message: '<%= message %>'
+          },{
+            type: 'danger',
+            timer: 4000,
+            placement: {
+              from: "top",
+              align: "center"
+          }
+          });
+        }
+
+        window.onload = flashMessages;
+      }
+    </script>
 </body>
 
 </html>

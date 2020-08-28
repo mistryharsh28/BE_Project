@@ -10,6 +10,10 @@ const peerServer = ExpressPeerServer(server, {
 });
 const mongoose = require('mongoose');
 const { v4: uuidV4 } = require('uuid')
+
+const sha256 = require('js-sha256');
+const session = require('express-session');
+
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true })); 
 
@@ -18,7 +22,11 @@ app.use('/peerjs', peerServer);
 app.set('view engine', 'ejs')
 app.use(express.static('public'))
 
-
+app.use(session({ 
+  secret: "John Wick", 
+  resave: false, 
+  saveUninitialized: false
+}));
 
 mongoose.connect("mongodb+srv://qwerty:qwerty@123@be-project.llqsi.mongodb.net/BE-Project?retryWrites=true&w=majority", {
     useNewUrlParser: true,
@@ -44,49 +52,128 @@ var UserSchema = new mongoose.Schema(
    email:  {
         type: String,
         require: true
-      }
+      },
+    contact: {
+      type: String,
+      require: true
+    }
 },{collection: 'users'});
 
 var Users = mongoose.model('Users',UserSchema);
 
+const redirectLogin = (req, res, next) => {
+  if (!req.session.email){
+    res.redirect('/login');
+  }
+  else{
+    next();
+  }
+}
+
 app.get('/login', (req, res) => {
-  res.render('login')
+  res.render('login', { message: "" })
 })
 
 app.post('/login', (req, res) => {
   var email = req.body.email;
   var password = req.body.password;
 
-  console.log(req.body);
+  Users.findOne({email: email, user_password: sha256(password)}, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.render('login', { message: "Something went wrong !!!" });
+    }
+    else{
+      if(data == null){
+          res.render("login", {message: "Invalid Email or Password !!!"});
+      }
+      else{
+        // User exits
+        console.log(data);
+        req.session.user = data;
+        req.session.email = email;
+        req.session.name = data.user_name;
+        res.redirect('/');
+      }
+    }
+  });
 
-  res.redirect('/login')
+})
+
+app.get('/logout', redirectLogin, (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      res.redirect('/')
+    }
+    else{
+      res.redirect('/login')
+    }
+  })
 })
 
 app.get('/register', (req, res) => {
-  res.render('register')
+  res.render('register', { message: "" });
 })
 
 app.post('/register', (req, res) => {
-  var username = req.body.name;
+  var name = req.body.name;
   var email = req.body.email;
   var contact = req.body.contact;
   var password = req.body.password;
   var confirm_password = req.body.confirm_password;
 
-  
-
-  console.log(req.body);
-  
-
-  res.redirect('/register')
+  // check if user already exists
+  Users.findOne({email: email}, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.render('register', { message: "Something went wrong !!!" });   
+      console.log("Hello");
+    }
+    else{
+      if(data == null){
+        // no user with this email make new one
+        if (password != confirm_password){
+          res.render('register', { message: "Passwords does not match." }); 
+        }
+        else{
+          Users.create(
+            {
+              user_name: name,
+              user_password: sha256(password),
+              email: email,
+              contact: contact 
+            },
+            function (err, Users) {
+              if (err) console.log(err);
+              else console.log(Users);
+            }
+          );
+          console.log("user created");
+          res.redirect("/login");
+        }
+      }
+      else{
+        // User already exits
+        console.log(data);
+        res.render('register', { message: "User already exists." }); 
+      }
+    }
+  });
 })
 
-app.get('/', (req, res) => {
-  res.redirect(`/${uuidV4()}`)
+app.get('/', redirectLogin, (req, res) => {
+  var user = req.session.user;
+  res.render('home', {user: user})
 })
 
-app.get('/room/:room', (req, res) => {
-  res.render('room', { roomId: req.params.room })
+app.get('/create-room', redirectLogin, (req, res) => {
+  res.redirect(`/room/${uuidV4()}`)
+})
+
+
+app.get('/room/:room', redirectLogin, (req, res) => {
+  var user = req.session.user;
+  res.render('room', { roomId: req.params.room, user: user })
 })
 
 io.on('connection', socket => {
