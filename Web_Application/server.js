@@ -71,7 +71,7 @@ const redirectLogin = (req, res, next) => {
 }
 
 app.get('/login', (req, res) => {
-  res.render('login', { message: "" })
+  res.render('login', { message: "", message_category: 'danger' })
 })
 
 app.post('/login', (req, res) => {
@@ -81,11 +81,11 @@ app.post('/login', (req, res) => {
   Users.findOne({email: email, user_password: sha256(password)}, (err, data) => {
     if (err) {
       console.log(err);
-      res.render('login', { message: "Something went wrong !!!" });
+      res.render('login', { message: "Something went wrong !!!", message_category: 'danger' });
     }
     else{
       if(data == null){
-          res.render("login", {message: "Invalid Email or Password !!!"});
+          res.render("login", {message: "Invalid Email or Password !!!", message_category: 'danger'});
       }
       else{
         // User exits
@@ -112,7 +112,7 @@ app.get('/logout', redirectLogin, (req, res) => {
 })
 
 app.get('/register', (req, res) => {
-  res.render('register', { message: "" });
+  res.render('register', { message: "", message_category: 'danger' });
 })
 
 app.post('/register', (req, res) => {
@@ -126,14 +126,13 @@ app.post('/register', (req, res) => {
   Users.findOne({email: email}, (err, data) => {
     if (err) {
       console.log(err);
-      res.render('register', { message: "Something went wrong !!!" });   
-      console.log("Hello");
+      res.render('register', { message: "Something went wrong !!!", message_category: 'danger' });   
     }
     else{
       if(data == null){
         // no user with this email make new one
         if (password != confirm_password){
-          res.render('register', { message: "Passwords does not match." }); 
+          res.render('register', { message: "Passwords does not match.", message_category: 'danger' }); 
         }
         else{
           Users.create(
@@ -144,18 +143,20 @@ app.post('/register', (req, res) => {
               contact: contact 
             },
             function (err, Users) {
-              if (err) console.log(err);
-              else console.log(Users);
+              if (err) {
+                console.log(err);
+              }
+              else {
+                console.log(Users);
+              }
             }
           );
-          console.log("user created");
-          res.redirect("/login");
+          res.render("login", { message: "User Created Successfully.", message_category: 'success'});
         }
       }
       else{
         // User already exits
-        console.log(data);
-        res.render('register', { message: "User already exists." }); 
+        res.render('register', { message: "User already exists.", message_category: 'danger'}); 
       }
     }
   });
