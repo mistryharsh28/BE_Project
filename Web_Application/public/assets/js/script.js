@@ -32,6 +32,7 @@ navigator.mediaDevices.getUserMedia({
   })
 
   socket.on('user-connected', userId => {
+    console.log(userId)
     connectToNewUser(userId, stream)
   })
   // input value
@@ -63,7 +64,7 @@ socket.on('stop-shared-screen', userId => {
 })
 
 myPeer.on('open', id => {
-  socket.emit('join-room', ROOM_ID, id)
+  socket.emit('join-room', ROOM_ID, id, user_email)
   myId = id
 })
 

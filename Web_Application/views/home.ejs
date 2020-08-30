@@ -22,10 +22,6 @@
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
    <script src="/socket.io/socket.io.js"></script>
    <script src="https://kit.fontawesome.com/c939d0e917.js"></script>
-   <script>
-      const ROOM_ID = "<%= roomId %>";
-      const user_email = "<%= user.email %>";
-   </script>
 </head>
 
 <body>
@@ -55,16 +51,16 @@
           <!-- Nav items -->
           <ul class="navbar-nav">
             <li class="nav-item">
-              <a class="nav-link" href="/" role="button">
-                <i class="ni ni-single-copy-04 text-pink"></i>
-                <span class="nav-link-text">Join Room</span>
-              </a>
+                <a class="nav-link active" href="/" role="button">
+                    <i class="ni ni-single-copy-04 text-pink"></i>
+                    <span class="nav-link-text">Join Room</span>
+                </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/" role="button">
-                <i class="ni ni-ungroup text-orange"></i>
-                <span class="nav-link-text">Reports</span>
-              </a>
+                <a class="nav-link" href="/" role="button">
+                    <i class="ni ni-ungroup text-orange"></i>
+                    <span class="nav-link-text">Reports</span>
+                </a>
             </li>
           </ul>
         </div>
@@ -78,7 +74,7 @@
         <div class="container-fluid">
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <h1> <h2 class="h2 text-white d-inline-block mb-0"> 
-               Room
+              Home
              </h2></h1>
             <!-- Navbar links -->
             <ul class="navbar-nav align-items-center  ml-md-auto ">
@@ -101,7 +97,7 @@
                     <h6 class="text-overflow m-0">Welcome!</h6>
                   </div>
                   <div class="dropdown-divider"></div>
-                  <a href="" class="dropdown-item">
+                  <a href="/logout" class="dropdown-item">
                     <i class="ni ni-user-run"></i>
                     <span>Logout</span>
                   </a>
@@ -112,70 +108,16 @@
         </div>
       </nav>
 
-
-      <div class="main">
-         <div class="main__left">
-            <div class="main__videos">
-               <div id="video-grid">
-         
-               </div>
-               <div id="screen-share"></div>
-            </div>
-            <div class="main__controls">
-               <div class="main__controls__block">
-                  <div onclick="muteUnmute()" class="main__controls__button main__mute_button">
-                     <i class="fas fa-microphone"></i>
-                     <span>Mute</span>
-                  </div>
-                  <div onclick="playStop()" class="main__controls__button main__video_button" >
-                     <i class="fas fa-video"></i>
-                     <span>Stop Video</span>
-                  </div>
-               </div>
-               <div class="main__controls__block">
-                  <!-- <div class="main__controls__button">
-                     <i class="fas fa-shield-alt"></i>
-                     <span>Security</span>
-                  </div> -->
-                  <div class="main__controls__button">
-                     <i class="fas fa-user-friends"></i>
-                     <span>Participants</span>
-                  </div>
-                  <div class="main__controls__button">
-                     <i class="fas fa-comment-alt"></i>
-                     <span>Chat</span>
-                  </div>
-                  <div class="main__controls__button" id="share__screen" onclick="startCapture()">
-                    <i class="fas fa-share-square"></i>
-                    <span>Screen Share</span>
-                 </div>
-               </div>
-               <div class="main__controls__block">
-                  <div class="main__controls__button" onclick="leaveMeeting()">
-                     <span class="leave_meeting">Leave Meeting</span>
-                  </div>
-               </div>
-            </div>
-         </div>
-         <div class="main__right">
-            <div class="main__header">
-               <h6>Chat</h6>
-            </div>
-            <div class="main__chat_window">
-               <ul class="messages">
-                  
-               </ul>
-   
-            </div>
-            <div class="main__message_container">
-               <input id="chat_message" type="text" placeholder="Type message here...">
-            </div>
-         </div>
+      <div class="header bg-primary pb-6">
+        <div class="container-fluid">
+          <div class="header-body">
+          </div>
+        </div>
       </div>
-
       
     <!-- Page content -->
-    <div class="container-fluid mt--6">
+    <div class="container-fluid mt--6" style="text-align: center;">
+      <a href="/create-room" type="button" class="btn btn-success btn-block">Create Room</a>
     </div>
   </div>
 
@@ -198,9 +140,6 @@
 
   <!-- Demo JS - remove this in your project -->
   <script src="/assets/js/demo.min.js"></script>
-
-  <script src="/assets/js/script.js"></script>
-
 </body>
 
 </html>
