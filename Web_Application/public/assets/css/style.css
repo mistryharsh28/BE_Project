@@ -14,7 +14,11 @@
 }
 
 .main__right {
-    flex: 0.2
+    flex: 0.2;
+    background-color: #242324;
+    border-left: 1px solid #3D3D42;
+    display: flex;
+    flex-direction: column;
 }
 
 .main__videos {
@@ -26,16 +30,20 @@
     padding: 40px;
 }
 
+#video-grid{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+ }
+ video{
+    height: 300px;
+    width: 400px;
+    object-fit: cover;
+    padding: 8px;
+ }
+
 .main__controls {
     background-color: #1C1E20;
-}
-
-.main__right {
-    background-color: #242324;
-    border-left: 1px solid #3D3D42;
-}
-
-.main__controls {
     color: #D2D2D2;
     display: flex;
     justify-content: space-between;
@@ -63,11 +71,6 @@
 
 .main__controls__button i {
     font-size: 24px;
-}
-
-.main__right {
-    display: flex;
-    flex-direction: column;
 }
 
 .main__header {

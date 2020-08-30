@@ -1,11 +1,13 @@
 const socket = io('/')
 const videoGrid = document.getElementById('video-grid')
+const screenShareDiv = document.getElementById('screen-share')
 const myPeer = new Peer()
 let myId;
 let myVideoStream;
 const myVideo = document.createElement('video')
 myVideo.muted = true;
 const peers = {}
+const screenPeers = {}
 navigator.mediaDevices.getUserMedia({
   video: true,
   audio: true
@@ -13,10 +15,19 @@ navigator.mediaDevices.getUserMedia({
   myVideoStream = stream;
   addVideoStream(myVideo, stream)
   myPeer.on('call', call => {
+    if(call.metadata.streamType=='video'){
+      peers[call.metadata.caller] = call
+    }
+    else{
+      screenPeers[call.metadata.caller] = call
+    }
     call.answer(stream)
     const video = document.createElement('video')
     call.on('stream', userVideoStream => {
       addVideoStream(video, userVideoStream)
+    })
+    call.on('close', () => {
+      video.remove()
     })
   })
 
@@ -42,13 +53,22 @@ socket.on('user-disconnected', userId => {
   if (peers[userId]) peers[userId].close()
 })
 
+socket.on('screen-shared', screen => {
+  $("#video-grid").hide()
+  screenShareDiv.append(screen)
+})
+
+socket.on('stop-shared-screen', userId => {
+  if (screenPeers[userId]) screenPeers[userId].close()
+})
+
 myPeer.on('open', id => {
   socket.emit('join-room', ROOM_ID, id)
   myId = id
 })
 
 function connectToNewUser(userId, stream) {
-  const call = myPeer.call(userId, stream)
+  const call = myPeer.call(userId, stream, {metadata: {caller: myId, streamType: 'video'}})
   const video = document.createElement('video')
   call.on('stream', userVideoStream => {
     addVideoStream(video, userVideoStream)
@@ -56,7 +76,6 @@ function connectToNewUser(userId, stream) {
   call.on('close', () => {
     video.remove()
   })
-
   peers[userId] = call
 }
 
@@ -88,7 +107,6 @@ const muteUnmute = () => {
 }
 
 const playStop = () => {
-  console.log('object')
   let enabled = myVideoStream.getVideoTracks()[0].enabled;
   if (enabled) {
     myVideoStream.getVideoTracks()[0].enabled = false;
@@ -129,4 +147,46 @@ const setPlayVideo = () => {
     <span>Play Video</span>
   `
   document.querySelector('.main__video_button').innerHTML = html;
+}
+
+const leaveMeeting = () => {
+  socket.disconnect(true)
+}
+
+var displayMediaOptions = {
+  video: {
+    cursor: 'always'
+  },
+  audio: true
+}
+const screen = document.createElement('video')
+
+async function startCapture() {
+  try {
+    screenStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+    screen.srcObject = screenStream
+    screen.addEventListener('loadedmetadata', () => {
+      screen.play()
+    })
+  } catch(err) {
+    console.error("Error: " + err);
+  }
+  $("#video-grid").hide()
+  screenShareDiv.append(screen)
+  for(let peer in peers){
+    const call = myPeer.call(peer, screenStream, {metadata: {caller: myId, streamType: 'screenSharing'}})
+    screenPeers[peer] = call
+  }
+  $("#share__screen").hide()
+
+  screenStream.oninactive = () => {
+    console.log('suc')
+    $("#video-grid").show()
+    screenShareDiv.remove(screen)
+    socket.emit('stop-screen-share')
+    for(let peer in peers){
+      screenPeers[peer].close()
+    }
+    $("#share__screen").show()
+  }
 }

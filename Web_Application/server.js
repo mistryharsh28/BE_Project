@@ -31,10 +31,14 @@ io.on('connection', socket => {
     socket.on('message', (message) => {
       //send message to the same room
       io.to(roomId).emit('createMessage', message, userId)
-  }); 
+    }); 
 
     socket.on('disconnect', () => {
       socket.to(roomId).broadcast.emit('user-disconnected', userId)
+    })
+
+    socket.on('stop-screen-share', () => {
+      socket.to(roomId).broadcast.emit('stop-shared-screen', userId)
     })
   })
 })
