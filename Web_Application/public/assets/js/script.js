@@ -2,8 +2,10 @@ const socket = io('/')
 const videoGrid = document.getElementById('video-grid')
 const screenShareDiv = document.getElementById('screen-share')
 const myPeer = new Peer()
+let isScreenShared = false
 let myId;
 let myVideoStream;
+let screenStream;
 const myVideo = document.createElement('video')
 myVideo.muted = true;
 const peers = {}
@@ -32,8 +34,12 @@ navigator.mediaDevices.getUserMedia({
   })
 
   socket.on('user-connected', userId => {
-    console.log(userId)
     connectToNewUser(userId, stream)
+    console.log(isScreenShared)
+    if(isScreenShared==true){
+      const call = myPeer.call(userId, screenStream, {metadata: {caller: myId, streamType: 'screenSharing'}})
+      screenPeers[userId] = call
+    }
   })
   // input value
   let text = $("input");
@@ -164,6 +170,7 @@ const screen = document.createElement('video')
 
 async function startCapture() {
   try {
+    isScreenShared = true
     screenStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
     screen.srcObject = screenStream
     screen.addEventListener('loadedmetadata', () => {
@@ -181,7 +188,6 @@ async function startCapture() {
   $("#share__screen").hide()
 
   screenStream.oninactive = () => {
-    console.log('suc')
     $("#video-grid").show()
     screenShareDiv.remove(screen)
     socket.emit('stop-screen-share')
@@ -189,5 +195,6 @@ async function startCapture() {
       screenPeers[peer].close()
     }
     $("#share__screen").show()
+    isScreenShared = false
   }
 }
