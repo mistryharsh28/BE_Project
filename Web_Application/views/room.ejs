@@ -119,6 +119,7 @@
                <div id="video-grid">
          
                </div>
+               <video id="recorded-video" controls></video>
                <div id="screen-share"></div>
             </div>
             <div class="main__controls">
@@ -127,12 +128,6 @@
                      <i class="fas fa-microphone"></i>
                      <span>Mute</span>
                   </div>
-                  <div onclick="playStop()" class="main__controls__button main__video_button" >
-                     <i class="fas fa-video"></i>
-                     <span>Stop Video</span>
-                  </div>
-               </div>
-               <div class="main__controls__block">
                   <!-- <div class="main__controls__button">
                      <i class="fas fa-shield-alt"></i>
                      <span>Security</span>
@@ -148,6 +143,14 @@
                   <div class="main__controls__button" id="share__screen" onclick="startCapture()">
                     <i class="fas fa-share-square"></i>
                     <span>Screen Share</span>
+                  </div>
+                  <div class="main__controls__button" id="record" onclick="recordScreen()">
+                    <i class="fas fa-video"></i>
+                    <span>Record</span>
+                  </div>
+                  <div id="stop" class="main__controls__button main__video_button" >
+                    <i class="fas fa-video"></i>
+                    <span>Stop Record</span>
                  </div>
                </div>
                <div class="main__controls__block">

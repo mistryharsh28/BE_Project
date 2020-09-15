@@ -35,7 +35,6 @@ navigator.mediaDevices.getUserMedia({
 
   socket.on('user-connected', userId => {
     connectToNewUser(userId, stream)
-    console.log(isScreenShared)
     if(isScreenShared==true){
       const call = myPeer.call(userId, screenStream, {metadata: {caller: myId, streamType: 'screenSharing'}})
       screenPeers[userId] = call
@@ -170,31 +169,68 @@ const screen = document.createElement('video')
 
 async function startCapture() {
   try {
-    isScreenShared = true
     screenStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
     screen.srcObject = screenStream
     screen.addEventListener('loadedmetadata', () => {
       screen.play()
     })
+    $("#video-grid").hide()
+    screenShareDiv.append(screen)
+    isScreenShared = true
+    for(let peer in peers){
+      if(peers[peer].open){
+        const call = myPeer.call(peer, screenStream, {metadata: {caller: myId, streamType: 'screenSharing'}})
+        screenPeers[peer] = call
+      }
+    }
+
+    screenStream.oninactive = () => {
+      $("#video-grid").show()
+      screenShareDiv.remove(screen)
+      socket.emit('stop-screen-share')
+      for(let peer in peers){
+        screenPeers[peer].close()
+      }
+      isScreenShared = false
+    }
   } catch(err) {
     console.error("Error: " + err);
   }
-  $("#video-grid").hide()
-  screenShareDiv.append(screen)
-  for(let peer in peers){
-    const call = myPeer.call(peer, screenStream, {metadata: {caller: myId, streamType: 'screenSharing'}})
-    screenPeers[peer] = call
-  }
-  $("#share__screen").hide()
-
-  screenStream.oninactive = () => {
-    $("#video-grid").show()
-    screenShareDiv.remove(screen)
-    socket.emit('stop-screen-share')
-    for(let peer in peers){
-      screenPeers[peer].close()
-    }
-    $("#share__screen").show()
-    isScreenShared = false
-  }
 }
+
+function recordScreen(){
+  const stop = document.getElementById('stop')
+  const recordedVideo = document.getElementById('recorded-video')
+  navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
+    .then(stream => {
+      let mediaRecorder = new MediaRecorder(stream)
+      let chunks = []
+      mediaRecorder.start()
+
+      stop.onclick = () => {
+        mediaRecorder.stop()
+      }
+
+      mediaRecorder.ondataavailable = (e) => {
+        console.log('Recording')
+        chunks.push(e.data)
+      }
+
+      mediaRecorder.onstop = () => {
+        console.log('Inactive')
+        let blob = new Blob(chunks, {'type': 'video/mp4'})
+        chunks = []
+        let videoURL = window.URL.createObjectURL(blob)
+        recordedVideo.src = videoURL
+      }
+    })
+}
+
+// function takeScreenshot() {
+//   html2canvas($("#video-grid"), {
+//     onrendered: function(canvas) {
+//       var myImage = canvas.toDataURL("image/png");
+//       window.open(myImage)
+//     }
+//   })
+// }
