@@ -27,6 +27,7 @@ navigator.mediaDevices.getUserMedia({
     const video = document.createElement('video')
     call.on('stream', userVideoStream => {
       addVideoStream(video, userVideoStream)
+      changeVideoDimension(Object.keys(peers).length+1)
     })
     call.on('close', () => {
       video.remove()
@@ -83,6 +84,7 @@ function connectToNewUser(userId, stream) {
     video.remove()
   })
   peers[userId] = call
+  changeVideoDimension(Object.keys(peers).length+1)
 }
 
 function addVideoStream(video, stream) {
@@ -91,6 +93,15 @@ function addVideoStream(video, stream) {
     video.play()
   })
   videoGrid.append(video)
+}
+
+function changeVideoDimension(no) {
+  if(no>2){
+    for(const vg of videoGrid.getElementsByTagName('video')){
+      vg.style.height = '240px'
+      vg.style.width = '320px'
+    }
+  }
 }
 
 
@@ -222,15 +233,8 @@ function recordScreen(){
         chunks = []
         let videoURL = window.URL.createObjectURL(blob)
         recordedVideo.src = videoURL
+        // const audio = new Audio(videoURL)
+        // console.log(audio.textContent)
       }
     })
 }
-
-// function takeScreenshot() {
-//   html2canvas($("#video-grid"), {
-//     onrendered: function(canvas) {
-//       var myImage = canvas.toDataURL("image/png");
-//       window.open(myImage)
-//     }
-//   })
-// }

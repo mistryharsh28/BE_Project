@@ -2,8 +2,12 @@
     border: 1px solid black;
 }
 
+.navigation {
+    height: 10vh;
+}
+
 .main {
-    height: 100vh;
+    height: 90vh;
     display: flex;
 }
 
@@ -22,6 +26,7 @@
 }
 
 .main__videos {
+    max-height: 80vh; 
     flex-grow: 1;
     background-color: black;
     display: flex;
@@ -44,6 +49,7 @@
 
 .main__controls {
     background-color: #1C1E20;
+    height: 10vh;
     color: #D2D2D2;
     display: flex;
     justify-content: space-between;
@@ -107,4 +113,11 @@
 
 .unmute, .stop {
     color: #CC3B33;
+}
+
+#screen-share video {
+    height: 80vh;
+    width: auto;
+    object-fit: cover;
+    padding: 8px;
 }
