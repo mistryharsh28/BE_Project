@@ -10,12 +10,28 @@ const myVideo = document.createElement('video')
 myVideo.muted = true;
 const peers = {}
 const screenPeers = {}
+var recognition;
+var is_muted = false;
+var noteContent = [];
+
 navigator.mediaDevices.getUserMedia({
   video: true,
   audio: true
 }).then(stream => {
+
+  try {
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+  }
+  catch(e) {
+    console.error(e);
+  }
+
   myVideoStream = stream;
+  
   addVideoStream(myVideo, stream)
+  
   myPeer.on('call', call => {
     if(call.metadata.streamType=='video'){
       peers[call.metadata.caller] = call
@@ -33,6 +49,49 @@ navigator.mediaDevices.getUserMedia({
       video.remove()
     })
   })
+
+  recognition.onresult = function(event) {
+    console.log("HeardSOmeting")
+
+    var current = event.resultIndex;
+  
+    // Get a transcript of what was said.
+    var transcript = event.results[current][0].transcript;
+  
+    // Add the current transcript to the contents of our Note.
+    // There is a weird bug on mobile, where everything is repeated twice.
+    // There is no official solution so far so we have to handle an edge case.
+    var mobileRepeatBug = (current == 1 && transcript == event.results[0][0].transcript);
+  
+    // if(!mobileRepeatBug) {
+    
+    socket.emit('speech_recognised', user_email, transcript);
+
+    noteContent.push(transcript);
+// 
+    // }
+
+  };
+  
+
+  recognition.onstart = function() { 
+    console.log("Started")
+  }
+  
+  recognition.onspeechend = function() {
+    console.log("Ended")
+    if(is_muted == false){
+      recognition.start();
+    }
+  }
+  
+  recognition.onerror = function(event) {
+    if(event.error == 'no-speech') {
+      console.log('No speech was detected. Try again.');  
+    };
+  }
+
+  recognition.start();
 
   socket.on('user-connected', userId => {
     connectToNewUser(userId, stream)
@@ -111,15 +170,18 @@ const scrollToBottom = () => {
   d.scrollTop(d.prop("scrollHeight"));
 }
 
-
 const muteUnmute = () => {
   const enabled = myVideoStream.getAudioTracks()[0].enabled;
   if (enabled) {
     myVideoStream.getAudioTracks()[0].enabled = false;
+    is_muted = true;
+    recognition.stop();
     setUnmuteButton();
   } else {
     setMuteButton();
     myVideoStream.getAudioTracks()[0].enabled = true;
+    is_muted = false;
+    recognition.start();
   }
 }
 

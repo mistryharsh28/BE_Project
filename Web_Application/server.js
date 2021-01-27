@@ -78,7 +78,8 @@ var RoomSchema = new mongoose.Schema(
     }],
     members_attended: [{
       type: String
-    }]
+    },],
+    transcripts: [{member: String, transcript: String}]
 },{collection: 'rooms'});
 
 var Users = mongoose.model('Users',UserSchema);
@@ -200,7 +201,8 @@ app.get('/create-room', redirectLogin, (req, res) => {
       created_by_user: req.session.email,
       active: true,
       members: [],
-      members_attended: []
+      members_attended: [],
+      transcripts: []
     }
   );
 
@@ -261,6 +263,26 @@ io.on('connection', socket => {
       //send message to the same room
       io.to(roomId).emit('createMessage', message, userId)
     }); 
+
+    socket.on('speech_recognised', (user_email, transcript) => {
+      Rooms.findOne({room_id: roomId}, (err, data) => {
+        if (err) {
+          console.log(err);
+        }
+        else{
+          if(data != null){
+            console.log(data);
+            var transcripts = data.transcripts;
+            transcripts.push({member: user_email, transcript: transcript});
+            data.transcripts = transcripts;
+            data.save();
+          }
+          else{
+            console.log('No such room');
+          }
+        }
+      });
+    });
 
     socket.on('disconnect', () => {
 
