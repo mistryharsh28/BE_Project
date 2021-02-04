@@ -75,20 +75,37 @@ navigator.mediaDevices.getUserMedia({
   
 
   recognition.onstart = function() { 
-    console.log("Started")
+    console.log("Speech Started");
   }
   
   recognition.onspeechend = function() {
-    console.log("Ended")
-    if(is_muted == false){
-      recognition.start();
-    }
+      console.log("Speech Ended");
+      recognition.stop();
   }
   
   recognition.onerror = function(event) {
     if(event.error == 'no-speech') {
       console.log('No speech was detected. Try again.');  
+    }
+    else{
+      console.log(event.error);
     };
+  }
+
+  recognition.onsoundstart = function() {
+    // console.log("Sound Start");
+  }
+
+
+  recognition.onsoundend = function() {
+    // console.log("Sound End");
+  }
+
+  recognition.onend = function() {
+    console.log("OnEnd");
+    if(is_muted == false){
+      recognition.start();
+    }
   }
 
   recognition.start();

@@ -271,11 +271,11 @@ io.on('connection', socket => {
         }
         else{
           if(data != null){
-            console.log(data);
             var transcripts = data.transcripts;
             transcripts.push({member: user_email, transcript: transcript});
             data.transcripts = transcripts;
             data.save();
+            console.log(data);
           }
           else{
             console.log('No such room');
