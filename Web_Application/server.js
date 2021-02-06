@@ -15,6 +15,7 @@ const sha256 = require('js-sha256');
 const session = require('express-session');
 
 var bodyParser = require("body-parser");
+const { type } = require('os');
 app.use(bodyParser.urlencoded({ extended: true })); 
 
 app.use('/peerjs', peerServer);
@@ -39,6 +40,7 @@ mongoose.connect("mongodb+srv://qwerty:qwerty@123@be-project.llqsi.mongodb.net/B
 })
 
 
+// Schemas
 var UserSchema = new mongoose.Schema(
   { 
    user_name: {
@@ -78,12 +80,20 @@ var RoomSchema = new mongoose.Schema(
     }],
     members_attended: [{
       type: String
-    },],
-    transcripts: [{member: String, transcript: String}]
+    }],
+    start_date_time: {type: Date},
+    end_date_time: {type: Date}
 },{collection: 'rooms'});
+
+var TranscriptSchema = new mongoose.Schema({
+  room_id: {type:String, require: true},
+  transcript: {type:String, require: true},
+  spoken_by_user: {type:String, require: true}
+}, {collection: 'transcripts'});
 
 var Users = mongoose.model('Users',UserSchema);
 var Rooms = mongoose.model('Rooms', RoomSchema);
+var Transcripts = mongoose.model('Transcripts', TranscriptSchema);
 
 const redirectLogin = (req, res, next) => {
   if (!req.session.email){
@@ -202,7 +212,8 @@ app.get('/create-room', redirectLogin, (req, res) => {
       active: true,
       members: [],
       members_attended: [],
-      transcripts: []
+      transcripts: [],
+      start_date_time: new Date(),
     }
   );
 
@@ -265,23 +276,16 @@ io.on('connection', socket => {
     }); 
 
     socket.on('speech_recognised', (user_email, transcript) => {
-      Rooms.findOne({room_id: roomId}, (err, data) => {
-        if (err) {
-          console.log(err);
+
+      Transcripts.create(
+        {
+          room_id: roomId,
+          spoken_by_user: user_email,
+          transcript: transcript
         }
-        else{
-          if(data != null){
-            var transcripts = data.transcripts;
-            transcripts.push({member: user_email, transcript: transcript});
-            data.transcripts = transcripts;
-            data.save();
-            console.log(data);
-          }
-          else{
-            console.log('No such room');
-          }
-        }
-      });
+      );
+
+
     });
 
     socket.on('disconnect', () => {
@@ -299,6 +303,7 @@ io.on('connection', socket => {
             data.members = members;
             if (data.members.length == 0){
               data.active = false;
+              data.end_date_time = new Date();
             }
             data.save();
           }
