@@ -11,6 +11,7 @@ from flask import Flask
 from flask_pymongo import PyMongo
 import urllib.parse
 from flask_cors import CORS, cross_origin
+from .after_response_library import AfterResponse
 
 password = urllib.parse.quote_plus("qwerty@123")
 CONNECTION_STRING = "mongodb+srv://qwerty:{}@be-project.llqsi.mongodb.net/BE-Project?retryWrites=true&w=majority".format(password)
@@ -92,3 +93,5 @@ from app.views.api import api
 # app.register_blueprint(main)
 # app.register_blueprint(auth)
 app.register_blueprint(api)
+
+AfterResponse(app)
