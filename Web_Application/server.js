@@ -200,7 +200,7 @@ app.post('/register', (req, res) => {
 
 app.get('/', redirectLogin, (req, res) => {
   var user = req.session.user;
-  Rooms.find({members_attended: user.email, active: false}, (err, data) => {
+  Rooms.find({members_attended: user.email, active: false}, ['room_id', 'created_by_user', 'members_attended', 'members', 'active', 'start_date_time', 'end_date_time'], {limit:20, sort:{start_date_time:-1}}, (err, data) => {
     if(err){
       console.log(err);
       res.render('home', {user: user, meetings: null});
