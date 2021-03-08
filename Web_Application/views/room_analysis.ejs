@@ -74,7 +74,7 @@
         <div class="container-fluid">
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <h1> <h2 class="h2 text-white d-inline-block mb-0"> 
-              Home
+              Room Analysis
              </h2></h1>
             <!-- Navbar links -->
             <ul class="navbar-nav align-items-center  ml-md-auto ">
@@ -112,63 +112,29 @@
         <div class="container-fluid">
           <div class="header-body">
 
-            <div class="row align-items-center py-4">
-              <div class="col">
-              </div>
-              <div class="col-xl-6 col-md-12">
-                <a href="/create-room" type="button" class="btn btn-success btn-block">Create Room</a>
-              </div>
-              <div class="col">
-              </div>
-            </div>
 
             <div class="row align-items-center py-4">
               <div class="col text-left">
-                <h1 class="display-4">Meetings Attended</h1>
+                <h1 class="display-4">Room Analysis</h1>
               </div>
             </div>
             
             <div class="row">
               
-              <% if(meetings != null) { %>
-                <% meetings.forEach(function(meeting) { %>
-                  <div class="col-xl-3 col-md-6">
+                <div class="col text-center">
                     <div class="card">
-                      <div class="card-body">            
-                        <h5 class="h2 card-title mb-0"><%= new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', day: '2-digit', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12:true}).format(meeting.start_date_time) %></h5>
-                        <small class="text-muted">by <%= meeting.created_by_user %></small>
-                        <a href="/room_analysis/<%= meeting.room_id %>" class="btn btn-link px-0">View Details and Analysis</a>
-                      </div>           
+                        <div class="card-body">            
+                            <h5 class="h2 card-title mb-0"><%= new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', day: '2-digit', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12:true}).format(room_data.start_date_time) %></h5>
+                            <p></p>
+                            <medium class="text-muted">by <%= room_data.created_by_user %></medium>
+                            <p></p>
+                            <medium class="text-muted">Started at <%= new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', day: '2-digit', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12:true}).format(room_data.start_date_time) %></medium>
+                            <p></p>
+                            <medium class="text-muted">Till <%= new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', day: '2-digit', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12:true}).format(room_data.end_date_time) %></medium>         
+                        </div>           
                     </div>
-                  </div>
-                <% }); %>
-              <% } %>
-              
-              
-              <div class="col-xl-3 col-md-6">
-                <div class="card">
-                  <div class="card-body">            
-                    <h5 class="h2 card-title mb-0">Get started with Argon</h5>
-                    <small class="text-muted">by John Snow on Oct 29th at 10:23 AM</small>
-                    <p class="card-text mt-4">Argon is a great free UI package based on Bootstrap 4 that includes the most important components and features.</p>
-                    <div class="accordion" id="accordionExample">
-                      <div class="card">
-                          <div class="card-header" id="headingOne" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                              <h5 class="mb-0">Collapsible Group Item #1</h5>
-                          </div>
-                          <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
-                              <div class="card-body">
-                              <p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.</p>
-                              <p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.</p>
-                              <p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.</p>
-                              </div>
-                          </div>
-                      </div>
-                    </div>
-                    <a href="#!" class="btn btn-link px-0">View article</a>
-                  </div>           
                 </div>
-              </div>
+                
 
             </div>
           </div>

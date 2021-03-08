@@ -40,6 +40,8 @@ mongoose.connect("mongodb+srv://qwerty:qwerty@123@be-project.llqsi.mongodb.net/B
 })
 
 
+var Flask_API_HOST = "http://127.0.0.1:8000/";
+
 // Schemas
 var UserSchema = new mongoose.Schema(
   { 
@@ -198,7 +200,16 @@ app.post('/register', (req, res) => {
 
 app.get('/', redirectLogin, (req, res) => {
   var user = req.session.user;
-  res.render('home', {user: user})
+  Rooms.find({members_attended: user.email, active: false}, (err, data) => {
+    if(err){
+      console.log(err);
+      res.render('home', {user: user, meetings: null});
+    }
+    else{
+      console.log(data);
+      res.render('home', {user: user, meetings: data, api_host: Flask_API_HOST});
+    }
+  });
 })
 
 app.get('/create-room', redirectLogin, (req, res) => {
@@ -240,6 +251,27 @@ app.get('/room/:room', redirectLogin, (req, res) => {
       }
     }
   });
+})
+
+app.get("/room_analysis/:room", redirectLogin, (req, res) => {
+  var user = req.session.user;
+  var room_id = req.params.room;
+
+  Rooms.findOne({room_id: room_id, active:false}, (err, room) => {
+    if (err) {
+      console.log(err);
+      res.redirect('/');
+    }
+    else{
+      if ( room != null) { 
+        res.render('room_analysis', {user: user, room_data: room});        
+      }
+      else{
+        res.redirect('/');
+      }
+    }
+  });
+
 })
 
 io.on('connection', socket => {
