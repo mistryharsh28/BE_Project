@@ -121,20 +121,39 @@
             
             <div class="row">
               
-                <div class="col text-center">
+                <div class="col">
                     <div class="card">
                         <div class="card-body">            
                             <h5 class="h2 card-title mb-0"><%= new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', day: '2-digit', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12:true}).format(room_data.start_date_time) %></h5>
                             <p></p>
-                            <medium class="text-muted">by <%= room_data.created_by_user %></medium>
-                            <p></p>
-                            <medium class="text-muted">Started at <%= new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', day: '2-digit', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12:true}).format(room_data.start_date_time) %></medium>
+                            <medium class="text-muted">Started by <%= room_data.created_by_user %> at <%= new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', day: '2-digit', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12:true}).format(room_data.start_date_time) %></medium>
                             <p></p>
                             <medium class="text-muted">Till <%= new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', day: '2-digit', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12:true}).format(room_data.end_date_time) %></medium>         
-                        </div>           
+                            <p></p>
+                            <div class="accordion" id="accordionExample">
+                              <div class="card">
+                                  <div class="card-header" id="headingOne" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                      <h5 class="mb-0">Video Transcript</h5>
+                                  </div>
+                                  <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                                      <div class="card-body">
+                                        <% if(transcripts != null) { %>
+                                          <% transcripts.forEach(function(transcript) { %>
+                                            <p><%= transcript.spoken_by_user %> : <%= transcript.transcript %></p>
+                                          <% }); %>
+                                        <% } %>
+                                      </div>
+                                  </div>
+                              </div>
+                            </div>
+
+                            
+                            <button type="button" class="btn btn-success">Start Analysis</button>
+                          </div>           
                     </div>
+
                 </div>
-                
+
 
             </div>
           </div>

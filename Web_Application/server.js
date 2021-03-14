@@ -264,7 +264,21 @@ app.get("/room_analysis/:room", redirectLogin, (req, res) => {
     }
     else{
       if ( room != null) { 
-        res.render('room_analysis', {user: user, room_data: room});        
+        Transcripts.find({room_id: room_id}, (err, data) => {
+          if(err){
+            console.log(err);
+            res.redirect('/');
+          }
+          else{
+            if(data != null){
+              console.log(data);
+              res.render('room_analysis', {user: user, room_data: room, transcripts: data});        
+            }
+            else{
+              res.render('room_analysis', {user: user, room_data: room, transcripts: null});        
+            }
+          }
+        });
       }
       else{
         res.redirect('/');
