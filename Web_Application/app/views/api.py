@@ -8,6 +8,12 @@ from flask import jsonify
 from app import *
 from time import sleep
 
+# Text processing libraries
+import spacy
+from spacy.lang.en.stop_words import STOP_WORDS
+import yake
+from heapq import nlargest
+
 api = Blueprint('api', __name__, url_prefix='/api')
 
 
@@ -43,27 +49,64 @@ def get_rooms_data(user_email):
 
 
 
-def analysis_of_room(user_email, room_id):
-    # Collect the transcripts of room
-    # Text summarization
-    # Keywords 
+def analysis_of_room(user_email, room_id, language, number_of_keywords, percentage_of_summarization):
     
-    # Sample code to test working
-    print(user_email, room_id)
-    for i in range(20):
-        sleep(1)
-        print(i)
-        print('This is working after the response has been sent for the request. Haha.')
+    #check analysis already exists or not
+    analysis = mongo.db.analysis.find({"room_id": room_id})
+    for a in analysis:
+        return
+    
+    print("Analysis for", room_id)
+    # Collect the transcripts of room
+    whole_transcript = ""
+    transcripts = mongo.db.transcripts.find({"room_id": room_id})
+    for transcript in transcripts:
+        whole_transcript = "{}{}.".format(whole_transcript, transcript["transcript"])
+
+    # Text summarization
+    stopwords = list(STOP_WORDS)
+    nlp = spacy.load('en_core_web_sm')
+    doc = nlp(whole_transcript)
+    sentence_tokens = [sent for sent in doc.sents]
+    select_length = int(len(sentence_tokens)*percentage_of_summarization)
+
+        # Using Yake
+    max_ngram_size = 3
+    deduplication_thresold = 0.9
+    deduplication_algo = 'seqm'
+    windowSize = 1
+    numOfKeywords = number_of_keywords
+
+    custom_kw_extractor = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=deduplication_thresold, dedupFunc=deduplication_algo, windowsSize=windowSize, top=numOfKeywords, features=None)
+    keywords = custom_kw_extractor.extract_keywords(whole_transcript)
+    keywords_list = []
+    sentence_scores1 = {}
+    for sent in sentence_tokens:
+        for key in keywords:
+            if key[0].lower() in sent.text.lower():
+                if sent not in sentence_scores1.keys():
+                    sentence_scores1[sent] = (1 - key[1])
+                else:
+                    sentence_scores1[sent] += (1 - key[1])                 
+
+    for key in keywords:
+        keywords_list.append(key[0])
+
+    summary1 = nlargest(select_length, sentence_scores1, key = sentence_scores1.get)
+
+    final_summary = [word.text for word in summary1]
+    for i in range(len(final_summary)):
+        final_summary[i] = final_summary[i][0].upper() + final_summary[i][1:]
+    summary1 = ' '.join(final_summary)
+
+    mongo.db.analysis.insert_one({"room_id": room_id, "keywords": keywords_list, "summarized_text": summary1})
 
 
-
-@api.route('/start_analysis_of_room/<user_email>/<room_id>', methods=['GET', 'POST'])
-def start_analysis_of_room(user_email, room_id):
+@api.route('/start_analysis_of_room/<user_email>/<room_id>/<language>/<number_of_keywords>/<percentage_of_summarization>', methods=['GET', 'POST'])
+def start_analysis_of_room(user_email, room_id, language, number_of_keywords, percentage_of_summarization):
     
     # http://127.0.0.1:8000/api/start_analysis_of_room/mistryharsh28@gmail.com/fghdrhbrserhb31342543
     # Run and see the command prompt 
-
-    print('Start')
 
     @app.after_response
     def after_sending_response():
@@ -72,9 +115,7 @@ def start_analysis_of_room(user_email, room_id):
         # timeouts
 
         # Do the analysis and saving of the data here.
-        analysis_of_room(user_email, room_id)
-
-    print('Done')    
+        analysis_of_room(user_email, room_id, language, int(number_of_keywords), float(percentage_of_summarization))
 
     return jsonify({"status": 'success'})
     

@@ -30,7 +30,7 @@
     <div class="scrollbar-inner">
       <!-- Brand -->
       <div class="sidenav-header  d-flex  align-items-center">
-        <a class="navbar-brand" href="http://www.learning-curve-foundation.org/">
+        <a class="navbar-brand" href="">
             <!-- logo of App -->
           <img src="/assets/img/brand/favicon.png" class="navbar-brand-img" alt="...">
         </a>
@@ -146,9 +146,32 @@
                                   </div>
                               </div>
                             </div>
-
                             
-                            <button type="button" class="btn btn-success">Start Analysis</button>
+                            <% if(analysis != null) { %>
+                            <div class="accordion" id="accordionAnalysis">
+                              <div class="card">
+                                  <div class="card-header" id="headingTwo" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                      <h5 class="mb-0">Analysis</h5>
+                                  </div>
+                                  <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionAnalysis">
+                                      <div class="card-body">
+                                          <% analysis.forEach(function(a) { %>
+                                            <h6>Summarized Text</h6>
+                                            <p><%= a.summarized_text %></p>
+                                            <h6>Keywords</h6>
+                                            <% a.keywords.forEach(function(keyword) { %>
+                                              <p><%= keyword %></p>
+                                            <% }); %>
+                                          <% }); %>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                              <% }else{ %>
+                                <button type="button" class="btn btn-success" onclick="start_analysis('<%= user.email %>', '<%= room_data.room_id %>', 'en', 10, 0.4)">Start Analysis</button>
+                                <button type="button" class="btn btn-secondary" onclick="window.location.reload()">Refresh</button>
+                              <% } %>
+                            
                           </div>           
                     </div>
 
@@ -188,6 +211,17 @@
   <!-- Demo JS - remove this in your project -->
   <script src="/assets/js/demo.min.js"></script>
 
+  <script>
+    function start_analysis(user_email, room_id, language, number_of_keywords, percentage_of_summarization){
+      $.get("<%= api_host %>/api/start_analysis_of_room/"+ user_email +"/"+ room_id+ "/" + language + "/" + String(number_of_keywords) + "/" + String(percentage_of_summarization),
+        function(data, status){
+          if(status == 'success'){
+            window.location.reload();
+          }
+        }
+      );
+    }
+  </script>
   
 </body>
 

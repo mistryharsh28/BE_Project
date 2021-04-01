@@ -40,7 +40,7 @@ mongoose.connect("mongodb+srv://qwerty:qwerty@123@be-project.llqsi.mongodb.net/B
 })
 
 
-var Flask_API_HOST = "http://127.0.0.1:8000/";
+var Flask_API_HOST = "http://127.0.0.1:8000";
 
 // Schemas
 var UserSchema = new mongoose.Schema(
@@ -93,9 +93,18 @@ var TranscriptSchema = new mongoose.Schema({
   spoken_by_user: {type:String, require: true}
 }, {collection: 'transcripts'});
 
+
+var AnalysisSchema = new mongoose.Schema({
+  room_id: {type:String, require: true},
+  keywords: [{type:String}],
+  summarized_text: {type:String},
+}, {collection: 'analysis'});
+
+
 var Users = mongoose.model('Users',UserSchema);
 var Rooms = mongoose.model('Rooms', RoomSchema);
 var Transcripts = mongoose.model('Transcripts', TranscriptSchema);
+var Analysis = mongoose.model('Analysis', AnalysisSchema);
 
 const redirectLogin = (req, res, next) => {
   if (!req.session.email){
@@ -272,10 +281,29 @@ app.get("/room_analysis/:room", redirectLogin, (req, res) => {
           else{
             if(data != null){
               console.log(data);
-              res.render('room_analysis', {user: user, room_data: room, transcripts: data});        
+              Analysis.find({room_id:room_id}, (err, analysis) => {
+                if(err){
+                  console.log(err);
+                  res.redirect('/');
+                }
+                else{
+                  if(analysis != null){
+                    console.log(analysis);
+                    if(analysis.length != 0){
+                      res.render('room_analysis', {user: user, room_data: room, transcripts: data, analysis: analysis, api_host: Flask_API_HOST});        
+                    }
+                    else{
+                      res.render('room_analysis', {user: user, room_data: room, transcripts: data, analysis: null, api_host: Flask_API_HOST});        
+                    }
+                  }
+                  else{
+                    res.render('room_analysis', {user: user, room_data: room, transcripts: data, analysis: null, api_host: Flask_API_HOST});        
+                  }
+                }
+              });
             }
             else{
-              res.render('room_analysis', {user: user, room_data: room, transcripts: null});        
+              res.render('room_analysis', {user: user, room_data: room, transcripts: null, analysis: null, api_host: Flask_API_HOST});        
             }
           }
         });
