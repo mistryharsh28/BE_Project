@@ -14,6 +14,7 @@ var recognition;
 var is_muted = false;
 var noteContent = [];
 
+
 navigator.mediaDevices.getUserMedia({
   video: true,
   audio: true
@@ -23,6 +24,21 @@ navigator.mediaDevices.getUserMedia({
     var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
     recognition.continuous = true;
+    if(language == "English"){
+      recognition.lang = 'en';
+    }
+    else if (language == "Marathi"){
+      recognition.lang = 'mr';
+
+    }
+    else if (language == "Hindi"){
+      recognition.lang = 'hi';
+
+    }
+    else if (language == "Gujarati"){
+      recognition.lang = 'gu';
+
+    }
   }
   catch(e) {
     console.error(e);
@@ -30,17 +46,17 @@ navigator.mediaDevices.getUserMedia({
 
   myVideoStream = stream;
   
-  addVideoStream(myVideo, stream)
+  addVideoStream(myVideo, stream);
   
   myPeer.on('call', call => {
     if(call.metadata.streamType=='video'){
-      peers[call.metadata.caller] = call
+      peers[call.metadata.caller] = call;
     }
     else{
-      screenPeers[call.metadata.caller] = call
+      screenPeers[call.metadata.caller] = call;
     }
-    call.answer(stream)
-    const video = document.createElement('video')
+    call.answer(stream);
+    const video = document.createElement('video');
     call.on('stream', userVideoStream => {
       addVideoStream(video, userVideoStream)
       changeVideoDimension(Object.keys(peers).length+1)
@@ -48,7 +64,7 @@ navigator.mediaDevices.getUserMedia({
     call.on('close', () => {
       video.remove()
     })
-  })
+  });
 
   recognition.onresult = function(event) {
     console.log("HeardSOmeting")
@@ -76,12 +92,12 @@ navigator.mediaDevices.getUserMedia({
 
   recognition.onstart = function() { 
     console.log("Speech Started");
-  }
+  };
   
   recognition.onspeechend = function() {
       console.log("Speech Ended");
       recognition.stop();
-  }
+  };
   
   recognition.onerror = function(event) {
     if(event.error == 'no-speech') {
@@ -89,24 +105,24 @@ navigator.mediaDevices.getUserMedia({
     }
     else{
       console.log(event.error);
-    };
-  }
+    }
+  };
 
   recognition.onsoundstart = function() {
     // console.log("Sound Start");
-  }
+  };
 
 
   recognition.onsoundend = function() {
     // console.log("Sound End");
-  }
+  };
 
   recognition.onend = function() {
     console.log("OnEnd");
     if(is_muted == false){
       recognition.start();
     }
-  }
+  };
 
   recognition.start();
 
@@ -123,14 +139,16 @@ navigator.mediaDevices.getUserMedia({
   $('html').keydown(function (e) {
     if (e.which == 13 && text.val().length !== 0) {
       socket.emit('message', text.val());
-      text.val('')
+      text.val('');
     }
   });
+
   socket.on("createMessage", (message, byUser) => {
     $(".messages").append(`<li class="message"><b>${byUser}</b><br/>${message}</li>`);
-    scrollToBottom()
-  })
-})
+    scrollToBottom();
+  });
+
+});
 
 socket.on('user-disconnected', userId => {
   if (peers[userId]) peers[userId].close()

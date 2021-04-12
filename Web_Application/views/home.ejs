@@ -116,7 +116,26 @@
               <div class="col">
               </div>
               <div class="col-xl-6 col-md-12">
-                <a href="/create-room" type="button" class="btn btn-success btn-block">Create Room</a>
+                <class class="card">
+                  <class class="card-body">
+                    <form role="form" action="/create-room" method="post" accept-charset="utf-8">
+                      <div class="form-group">
+                        <label for="room_title">Room Title</label>
+                        <input required type="text" name="room_title" class="form-control" id="room_title" placeholder="Eg. Team Meeting for Project">
+                      </div>
+                      <div class="form-group">
+                        <label for="language">Language</label>
+                        <select required name="language" class="form-control" id="language">
+                          <option>English</option>
+                          <option>Marathi</option>
+                          <option>Gujarati</option>
+                          <option>Hindi</option>
+                        </select>
+                      </div>
+                      <button type="submit" class="btn btn-success btn-block">Create Room</button>                      
+                    </form>
+                  </class>
+                </class>
               </div>
               <div class="col">
               </div>
@@ -135,8 +154,12 @@
                   <div class="col-xl-3 col-md-6">
                     <div class="card">
                       <div class="card-body">            
-                        <h5 class="h2 card-title mb-0"><%= new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', day: '2-digit', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12:true}).format(meeting.start_date_time) %></h5>
-                        <small class="text-muted">by <%= meeting.created_by_user %></small>
+                        <h5 class="h2 card-title mb-0"><%= meeting.room_title %></h5>
+                        <medium class="text-muted">on <%= new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', day: '2-digit', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12:true}).format(meeting.start_date_time) %></medium>
+                        <medium class="text-muted">by <%= meeting.created_by_user %></medium>
+                        <p>
+                          <medium class="text-muted">Language: <%= meeting.language %></medium>
+                        </p>
                         <a href="/room_analysis/<%= meeting.room_id %>" class="btn btn-link px-0">View Details and Analysis</a>
                       </div>           
                     </div>

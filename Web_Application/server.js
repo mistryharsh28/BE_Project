@@ -84,7 +84,9 @@ var RoomSchema = new mongoose.Schema(
       type: String
     }],
     start_date_time: {type: Date},
-    end_date_time: {type: Date}
+    end_date_time: {type: Date},
+    room_title: {type: String},
+    language: {type: String},
 },{collection: 'rooms'});
 
 var TranscriptSchema = new mongoose.Schema({
@@ -209,7 +211,7 @@ app.post('/register', (req, res) => {
 
 app.get('/', redirectLogin, (req, res) => {
   var user = req.session.user;
-  Rooms.find({members_attended: user.email, active: false}, ['room_id', 'created_by_user', 'members_attended', 'members', 'active', 'start_date_time', 'end_date_time'], {limit:20, sort:{start_date_time:-1}}, (err, data) => {
+  Rooms.find({members_attended: user.email, active: false}, ['room_id', 'created_by_user', 'members_attended', 'members', 'active', 'start_date_time', 'end_date_time', 'room_title', 'language'], {limit:20, sort:{start_date_time:-1}}, (err, data) => {
     if(err){
       console.log(err);
       res.render('home', {user: user, meetings: null});
@@ -221,8 +223,10 @@ app.get('/', redirectLogin, (req, res) => {
   });
 })
 
-app.get('/create-room', redirectLogin, (req, res) => {
+app.post('/create-room', redirectLogin, (req, res) => {
 
+  room_title = req.body.room_title;
+  language = req.body.language;
   var room_id = uuidV4();
 
   Rooms.create(
@@ -234,6 +238,8 @@ app.get('/create-room', redirectLogin, (req, res) => {
       members_attended: [],
       transcripts: [],
       start_date_time: new Date(),
+      room_title: room_title,
+      language: language,
     }
   );
 
@@ -253,7 +259,7 @@ app.get('/room/:room', redirectLogin, (req, res) => {
     }
     else{
       if ( room != null) { 
-        res.render('room', { roomId: room_id, user: user })        
+        res.render('room', { roomId: room_id, user: user, language: room.language })        
       }
       else{
         res.redirect('/');
@@ -346,7 +352,8 @@ io.on('connection', socket => {
     // messages
     socket.on('message', (message) => {
       //send message to the same room
-      io.to(roomId).emit('createMessage', message, userId)
+      console.log(message);
+      io.to(roomId).emit('createMessage', message, userId);
     }); 
 
     socket.on('speech_recognised', (user_email, transcript) => {
